@@ -1,12 +1,44 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
+import { createTwoPerspectives } from './models/TwoPerspectives.js'
+import { createCognitiveOrbit } from './models/CognitiveOrbit.js'
+import { createSignalSociety } from './models/SignalSociety.js'
+import { createLivingWorld } from './models/LivingWorld.js'
+import { randomSource } from './models/atelier.js'
+import { getChapterIndex } from './chapters.js'
 
-const clamp = (x) => Math.max(0, Math.min(1, x))
-const phase = (p, a, b) => { const t = clamp((p - a) / (b - a)); return t * t * (3 - 2 * t) }
-const mix = THREE.MathUtils.lerp
+const builders = [createTwoPerspectives, createCognitiveOrbit, createSignalSociety, createLivingWorld]
 
-export default function RealmScene({ progressRef, motionRef, burstRef }) {
+function studioEnvironment(renderer) {
+  const room = new RoomEnvironment()
+  const generator = new THREE.PMREMGenerator(renderer)
+  const target = generator.fromScene(room, 0.04)
+  room.dispose()
+  generator.dispose()
+  return target
+}
+
+function releaseScene(scene) {
+  const geometries = new Set(), materials = new Set()
+  scene.traverse(object => {
+    if (object.geometry) geometries.add(object.geometry)
+    if (object.material) {
+      for (const material of Array.isArray(object.material) ? object.material : [object.material]) materials.add(material)
+    }
+    if (object.isInstancedMesh) object.dispose()
+  })
+  geometries.forEach(item => item.dispose())
+  materials.forEach(item => item.dispose())
+}
+
+export default function RealmScene({ progressRef, redrawRef, motion, dispersed }) {
   const canvasRef = useRef(null)
+  const controls = useRef({ motion, dispersed })
+  useEffect(() => {
+    controls.current = { motion, dispersed }
+    redrawRef.current?.()
+  }, [motion, dispersed, redrawRef])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -14,239 +46,147 @@ export default function RealmScene({ progressRef, motionRef, burstRef }) {
     try {
       renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' })
     } catch {
-      canvas.style.display = 'none'
+      canvas.hidden = true
       return
     }
-    const scene = new THREE.Scene()
-    scene.fog = new THREE.FogExp2(0x080909, 0.045)
-    const camera = new THREE.PerspectiveCamera(43, 1, 0.1, 90)
-    renderer.setClearColor(0x080909, 1)
+    renderer.setClearColor(0x080908, 0)
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.2
-
-    let seed = 36
-    const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296 }
-    scene.add(new THREE.HemisphereLight(0xc8d9d1, 0x12140f, 1.8))
-    const key = new THREE.DirectionalLight(0xf7e6c5, 4)
-    key.position.set(3, 6, 4)
-    scene.add(key)
-    const rim = new THREE.PointLight(0xd0b282, 30, 18)
-    rim.position.set(1.5, 1, -2)
-    scene.add(rim)
-    const fill = new THREE.PointLight(0x9fbbb9, 12, 15)
-    fill.position.set(-3, 2, 4)
-    scene.add(fill)
-
-    const world = new THREE.Group()
-    world.position.x = 1.6
-    scene.add(world)
-    const coreMat = new THREE.ShaderMaterial({
-      uniforms: { time: { value: 0 } },
-      vertexShader: `varying vec3 vN; varying vec3 vV; varying vec3 vP;
-        void main(){ vec4 p=modelViewMatrix*vec4(position,1.); vN=normalize(normalMatrix*normal); vV=-p.xyz; vP=position; gl_Position=projectionMatrix*p; }`,
-      fragmentShader: `uniform float time; varying vec3 vN; varying vec3 vV; varying vec3 vP;
-        float hash(vec3 p){return fract(sin(dot(p,vec3(12.98,78.23,45.16)))*43758.54);}
-        void main(){
-          vec3 n=normalize(vN); float edge=pow(1.-max(dot(n,normalize(vV)),0.),3.2);
-          float grain=hash(floor(vP*180.));
-          float speck=step(.987,grain)*.38;
-          float light=max(dot(n,normalize(vec3(.8,.6,1.))),0.);
-          float sweep=pow(max(0.,1.-abs(vP.y-sin(time*.24)*.7)*24.),3.);
-          vec3 color=vec3(.018,.025,.023)+vec3(.66,.56,.39)*edge*.85+vec3(.2,.24,.22)*speck*light+vec3(.52,.46,.31)*sweep*.1;
-          gl_FragColor=vec4(color,1.);
-        }`,
-    })
-    const core = new THREE.Mesh(new THREE.SphereGeometry(1.12, 64, 40), coreMat)
-    world.add(core)
-
-    const orbit = new THREE.Group()
-    world.add(orbit)
-    const orbitMaterials = []
-    for (let i = 0; i < 4; i++) {
-      const mat = new THREE.MeshBasicMaterial({ color: i % 2 ? 0x93aaa2 : 0xcdbb98, transparent: true, opacity: 0.18, depthWrite: false })
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(1.65 + i * 0.42, 0.006, 4, 128), mat)
-      ring.rotation.set(0.6 + i * 0.35, i * 0.68, 0.25)
-      orbit.add(ring)
-      orbitMaterials.push(mat)
+    renderer.toneMappingExposure = 1.18
+    const scene = new THREE.Scene()
+    scene.fog = new THREE.FogExp2(0x100f0c, 0.044)
+    let environment = studioEnvironment(renderer)
+    scene.environment = environment.texture
+    scene.environmentIntensity = 0.68
+    scene.add(new THREE.HemisphereLight(0xf5ead3, 0x312c23, 1.15))
+    const key = new THREE.DirectionalLight(0xffe3ba, 3.25)
+    key.position.set(-3.8, 4.6, 4.3)
+    const rim = new THREE.DirectionalLight(0xfacb83, 3.0)
+    rim.position.set(2.9, 3.2, -2.5)
+    const fill = new THREE.DirectionalLight(0xc0cdd0, 1.4)
+    fill.position.set(4, 0.4, 3)
+    scene.add(key, rim, fill)
+    const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 60)
+    const random = randomSource(48)
+    const stars = new Float32Array(420 * 3)
+    for (let i = 0; i < stars.length; i += 3) {
+      stars[i] = (random() - 0.5) * 23
+      stars[i + 1] = random() * 9 - 3.5
+      stars[i + 2] = -2 - random() * 9
     }
-
-    // One draw call for the floating blocks and the emerging settlement.
-    const count = 72
-    const blockGeometry = new THREE.BoxGeometry(1, 1, 1)
-    const blockMat = new THREE.MeshStandardMaterial({ color: 0x37403a, metalness: 0.68, roughness: 0.38 })
-    const blocks = new THREE.InstancedMesh(blockGeometry, blockMat, count)
-    blocks.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
-    blocks.frustumCulled = false
-    scene.add(blocks)
-    const dummy = new THREE.Object3D()
-    const layout = Array.from({ length: count }, (_, i) => {
-      const angle = random() * Math.PI * 2
-      const radius = 2.1 + random() * 3.5
-      const size = 0.1 + random() * 0.28
-      const height = 0.25 + random() * 1.25
-      return {
-        angle, radius, size, height, speed: 0.03 + random() * 0.04,
-        y: (random() - 0.5) * 5.8,
-        x: (i % 9 - 4) * 0.53 + 1.7,
-        z: (Math.floor(i / 9) - 3.5) * 0.53,
-        spin: random() * Math.PI,
-      }
-    })
-    const tint = new THREE.Color()
-    layout.forEach((_, i) => blocks.setColorAt(i, tint.setHSL(0.12, 0.08 + random() * 0.12, 0.22 + random() * 0.2)))
-
-    const paths = []
-    layout.forEach((b, i) => {
-      if (i % 9 < 8) paths.push(b.x, -1.64, b.z, b.x + .53, -1.64, b.z)
-      if (i < 63) paths.push(b.x, -1.64, b.z, b.x, -1.64, b.z + .53)
-    })
-    const pathGeometry = new THREE.BufferGeometry()
-    pathGeometry.setAttribute('position', new THREE.Float32BufferAttribute(paths, 3))
-    const pathMat = new THREE.LineBasicMaterial({ color: 0xcbb68a, transparent: true, opacity: 0 })
-    scene.add(new THREE.LineSegments(pathGeometry, pathMat))
-
-    const particleCount = window.innerWidth < 700 ? 800 : 2200
-    const particles = new Float32Array(particleCount * 3)
-    for (let i = 0; i < particleCount; i++) {
-      particles[i * 3] = (random() - .5) * 35
-      particles[i * 3 + 1] = (random() - .35) * 14
-      particles[i * 3 + 2] = (random() - .5) * 28
-    }
-    const dustGeo = new THREE.BufferGeometry()
-    dustGeo.setAttribute('position', new THREE.BufferAttribute(particles, 3))
-    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0xc8c7ae, size: 0.018, transparent: true, opacity: .45, depthWrite: false }))
-    scene.add(dust)
-
-    // A procedural floor needs no texture requests or reflection render pass.
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.ShaderMaterial({
-      uniforms: { time: { value: 0 }, pulse: { value: 0 } },
-      vertexShader: `varying vec2 vP; void main(){ vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-      fragmentShader: `varying vec2 vP; uniform float time; uniform float pulse;
-        void main(){
-          float d=length(vP-vec2(1.6,0.));
-          vec2 g=abs(fract(vP*.75-.5)-.5)/max(fwidth(vP*.75),vec2(.001));
-          float grid=1.-min(min(g.x,g.y),1.);
-          float wave=pow(.5+.5*sin(d*9.-time*.8),12.);
-          float glow=exp(-d*.38);
-          float reflection=exp(-pow((vP.x-1.6)*1.8,2.))*exp(-abs(vP.y)*.21);
-          vec3 c=vec3(.018,.024,.022)+vec3(.21,.18,.12)*glow*(grid*.25+wave*.07+reflection*.4);
-          c+=vec3(.25,.21,.14)*pulse*exp(-abs(d-3.)*2.);
-          gl_FragColor=vec4(c,1.);
-        }`,
-    }))
-    floor.rotation.x = -Math.PI / 2
-    floor.position.y = -1.7
-    scene.add(floor)
-
-    let width = 1, height = 1, visible = true, dirty = true
-    let frame = 0, lastTime = performance.now(), time = 0, progress = progressRef.current, burst = 0
-    let pointerDown = false, previousMotion = motionRef.current
+    const sky = new THREE.BufferGeometry()
+    sky.setAttribute('position', new THREE.BufferAttribute(stars, 3))
+    scene.add(new THREE.Points(sky, new THREE.PointsMaterial({ color: 0xae9a74, size: 0.014, transparent: true, opacity: 0.48, depthWrite: false })))
+    const chapters = new Map()
     const pointer = new THREE.Vector2()
-    const smoothedPointer = new THREE.Vector2()
-    const resize = () => {
-      width = canvas.clientWidth || 1
-      height = canvas.clientHeight || 1
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 700 ? 1 : 1.5))
-      renderer.setSize(width, height, false)
-      camera.aspect = width / height
-      camera.updateProjectionMatrix()
-      dirty = true
+    const easedPointer = new THREE.Vector2()
+    const eye = new THREE.Vector3(), target = new THREE.Vector3()
+    let frame = 0, visible = true, lost = false, retired = false
+    let lastTime = 0, elapsed = 0, active = -1, burst = 0, held = false, fadeStart = 0
+    const request = () => {
+      if (!frame && visible && !lost && !retired && !document.hidden) frame = requestAnimationFrame(draw)
     }
-    const observer = new ResizeObserver(resize)
-    observer.observe(canvas)
-    const visibility = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; dirty = true })
-    visibility.observe(canvas)
-    const onMove = (e) => {
-      const rect = canvas.getBoundingClientRect()
-      pointer.set((e.clientX - rect.left) / width - .5, (e.clientY - rect.top) / height - .5)
-    }
-    const onDown = (e) => { if (e.pointerType === 'mouse' && e.button === 0) pointerDown = true }
-    const onUp = () => { pointerDown = false }
-    const onLeave = () => { pointer.set(0, 0); pointerDown = false }
-    canvas.addEventListener('pointermove', onMove)
-    canvas.addEventListener('pointerdown', onDown)
-    canvas.addEventListener('pointerleave', onLeave)
-    window.addEventListener('pointerup', onUp)
-    window.addEventListener('pointercancel', onUp)
-    const onContextLost = (event) => { event.preventDefault(); visible = false }
-    const onContextRestored = () => { visible = true; dirty = true }
-    canvas.addEventListener('webglcontextlost', onContextLost)
-    canvas.addEventListener('webglcontextrestored', onContextRestored)
-
-    const animate = (now) => {
-      frame = requestAnimationFrame(animate)
-      const dt = Math.min((now - lastTime) / 1000, .05)
+    function draw(now) {
+      frame = 0
+      if (!visible || lost || retired || document.hidden) return
+      const dt = Math.min(0.05, lastTime ? (now - lastTime) / 1000 : 0)
       lastTime = now
-      if (!visible || document.hidden) return
-      const motion = motionRef.current
-      const burstTarget = burstRef.current || pointerDown ? 1 : 0
-      if (!motion && !dirty && previousMotion === motion && progress === progressRef.current && burst === burstTarget) return
-      previousMotion = motion
-      dirty = false
-      if (motion) time += dt
-      const easing = motion ? 1 - Math.exp(-13 * dt) : 1
-      progress = mix(progress, progressRef.current, easing)
-      burst = mix(burst, burstTarget, motion ? 1 - Math.exp(-6 * dt) : 1)
-      smoothedPointer.lerp(motion ? pointer : new THREE.Vector2(), easing)
-      const mind = phase(progress, .12, .45)
-      const city = phase(progress, .55, .9)
-      const mobile = width < 700
-
-      coreMat.uniforms.time.value = time
-      core.scale.setScalar(mix(1, .38, city) + burst * .05)
-      core.position.y = mix(0, .55, city)
-      core.rotation.y = time * .04
-      world.position.x = mobile ? .8 : 1.6
-      orbit.rotation.set(.25 + mind * .7, time * .05 + mind, .25 + city * .5)
-      orbit.scale.setScalar(1 + mind * .45 - city * .55 + burst * .25)
-      orbitMaterials.forEach((mat) => { mat.opacity = .15 + mind * .16 - city * .08 })
-
-      layout.forEach((b, i) => {
-        const angle = b.angle + time * b.speed
-        const spread = 1 + burst * 1.3
-        const x = Math.cos(angle) * b.radius * spread + world.position.x
-        const y = b.y + Math.sin(time * .25 + b.spin) * .1
-        const z = Math.sin(angle) * b.radius * .65 * spread
-        const settled = city * (1 - burst)
-        dummy.position.set(mix(x, b.x, settled), mix(y, -1.7 + b.height / 2, settled), mix(z, b.z, settled))
-        dummy.rotation.set((b.spin + time * .06) * (1 - settled), (b.spin + time * .04) * (1 - settled), b.spin * (1 - settled))
-        dummy.scale.set(mix(b.size, .28, settled), mix(b.size, b.height, settled), mix(b.size, .28, settled))
-        dummy.updateMatrix()
-        blocks.setMatrixAt(i, dummy.matrix)
-      })
-      blocks.instanceMatrix.needsUpdate = true
-      pathMat.opacity = city * .4 * (1 - burst)
-      dust.rotation.y = time * .006
-      floor.material.uniforms.time.value = time
-      floor.material.uniforms.pulse.value = burst
-      camera.position.set(smoothedPointer.x * .35 + city * .4, mix(.5, 2.9, city) - smoothedPointer.y * .22, mobile ? 11.5 : mix(8.7, 9.3, city))
-      camera.lookAt(mobile ? .15 : .1, mix(.15, -.35, city), 0)
+      const { motion: moving, dispersed: spread } = controls.current
+      if (moving) elapsed += dt
+      const progress = progressRef.current
+      const index = getChapterIndex(progress)
+      if (index !== active) {
+        if (chapters.has(active)) chapters.get(active).group.visible = false
+        if (!chapters.has(index)) {
+          const chapter = builders[index]()
+          scene.add(chapter.group)
+          chapters.set(index, chapter)
+          chapter.ready?.then(request)
+        }
+        chapters.get(index).group.visible = true
+        fadeStart = active === -1 ? -1000 : now
+        active = index
+      }
+      const chapter = chapters.get(active)
+      const local = Math.min(1, Math.max(0, progress * 4 - index))
+      const easing = moving ? 1 - Math.exp(-15 * dt) : 1
+      burst = THREE.MathUtils.lerp(burst, held || spread ? 1 : 0, easing)
+      easedPointer.lerp(pointer, easing)
+      chapter.update(elapsed, local, burst)
+      target.fromArray(chapter.camera.target)
+      eye.fromArray(chapter.camera.position).sub(target)
+      const fit = Math.max(1, (index === 1 ? 1.34 : 1.18) / camera.aspect)
+      eye.multiplyScalar(fit * (1 + (moving ? (0.5 - local) * 0.032 : 0)))
+      camera.position.copy(target).add(eye)
+      if (moving) {
+        camera.position.x += easedPointer.x * 0.10
+        camera.position.y += easedPointer.y * 0.055
+      }
+      camera.lookAt(target)
+      canvas.style.opacity = String(moving ? 0.55 + 0.45 * Math.min(1, (now - fadeStart) / 200) : 1)
       renderer.render(scene, camera)
+      if (moving) request()
     }
+    const resize = () => {
+      const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth <= 700 ? 1 : 1.5))
+      renderer.setSize(w, h, false)
+      camera.aspect = w / h
+      camera.updateProjectionMatrix()
+      request()
+    }
+    const visibility = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting
+      lastTime = 0
+      request()
+    })
+    const size = new ResizeObserver(resize)
+    size.observe(canvas)
+    visibility.observe(canvas)
+    const move = event => {
+      const bounds = canvas.getBoundingClientRect()
+      pointer.set((event.clientX - bounds.left) / bounds.width - 0.5, 0.5 - (event.clientY - bounds.top) / bounds.height)
+    }
+    const press = event => { held = event.pointerType === 'mouse' && event.button === 0; request() }
+    const release = () => { held = false; request() }
+    const leave = () => { pointer.set(0, 0); release() }
+    const contextLost = event => { event.preventDefault(); lost = true }
+    const contextRestored = () => {
+      environment.dispose()
+      environment = studioEnvironment(renderer)
+      scene.environment = environment.texture
+      lost = false
+      request()
+    }
+    canvas.addEventListener('pointermove', move)
+    canvas.addEventListener('pointerdown', press)
+    canvas.addEventListener('pointerleave', leave)
+    window.addEventListener('pointerup', release)
+    window.addEventListener('pointercancel', release)
+    canvas.addEventListener('webglcontextlost', contextLost)
+    canvas.addEventListener('webglcontextrestored', contextRestored)
+    document.addEventListener('visibilitychange', request)
+    redrawRef.current = request
     resize()
-    frame = requestAnimationFrame(animate)
     return () => {
+      retired = true
+      redrawRef.current = null
       cancelAnimationFrame(frame)
-      observer.disconnect()
+      size.disconnect()
       visibility.disconnect()
-      canvas.removeEventListener('pointermove', onMove)
-      canvas.removeEventListener('pointerdown', onDown)
-      canvas.removeEventListener('pointerleave', onLeave)
-      canvas.removeEventListener('webglcontextlost', onContextLost)
-      canvas.removeEventListener('webglcontextrestored', onContextRestored)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('pointercancel', onUp)
-      const geometries = new Set(), materials = new Set()
-      scene.traverse((object) => {
-        if (object.geometry) geometries.add(object.geometry)
-        if (object.material) materials.add(object.material)
-      })
-      geometries.forEach((geometry) => geometry.dispose())
-      materials.forEach((material) => material.dispose())
+      canvas.removeEventListener('pointermove', move)
+      canvas.removeEventListener('pointerdown', press)
+      canvas.removeEventListener('pointerleave', leave)
+      window.removeEventListener('pointerup', release)
+      window.removeEventListener('pointercancel', release)
+      canvas.removeEventListener('webglcontextlost', contextLost)
+      canvas.removeEventListener('webglcontextrestored', contextRestored)
+      document.removeEventListener('visibilitychange', request)
+      chapters.forEach(chapter => chapter.dispose?.())
+      releaseScene(scene)
+      environment.dispose()
       renderer.dispose()
     }
-  }, [progressRef, motionRef, burstRef])
-
+  }, [progressRef, redrawRef])
   return <canvas className="realm-film__canvas" ref={canvasRef} aria-hidden="true" />
 }

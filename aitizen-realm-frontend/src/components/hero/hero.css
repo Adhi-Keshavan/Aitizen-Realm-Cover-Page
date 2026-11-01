@@ -1,136 +1,115 @@
-.realm-film { --paper:#f1f0e9; --gold:#c9b58e; --journey:0; position:relative; height:255vh; background:#080909; color:var(--paper); font-family:var(--sans); }
-.realm-film__viewport { position:sticky; top:0; height:100vh; height:100svh; overflow:hidden; isolation:isolate; }
-.realm-film__canvas,.realm-film__fallback,.realm-film__shade { position:absolute; inset:0; width:100%; height:100%; }
-.realm-film__canvas { display:block; touch-action:pan-y; z-index:1; }
-.realm-film__fallback { background:radial-gradient(ellipse at 66% 55%,#302b20 0%,#111313 28%,#080909 65%); }
-.realm-film__shade { z-index:2; pointer-events:none; background:linear-gradient(90deg,rgba(5,7,7,.65),transparent 65%),linear-gradient(0deg,rgba(4,6,6,.6),transparent 24%,transparent 85%,rgba(4,6,6,.28)); }
-.realm-film button { color:inherit; border:0; background:none; padding:0; cursor:pointer; }
-.realm-film button:focus-visible { outline:1px solid var(--gold); outline-offset:7px; }
-.realm-film__header { position:absolute; z-index:10; top:30px; left:3.5%; right:3.5%; display:flex; justify-content:space-between; align-items:flex-start; }
-.realm-film__brand { display:flex; align-items:center; gap:11px; text-align:left; }
-.realm-film__brand img { object-fit:cover; filter:grayscale(1) brightness(3); border-radius:5px; }
-.realm-film__brand>span { font-size:11px; line-height:1.6; letter-spacing:.2em; font-weight:500; }
-.realm-film__brand b { letter-spacing:.32em; font-weight:500; }
-.realm-film__nav { display:grid; grid-template-columns:repeat(3,auto); column-gap:32px; row-gap:9px; padding-top:5px; }
-.realm-film__nav button { font-size:12px; text-align:left; text-transform:uppercase; position:relative; }
-.realm-film__nav button::after { content:''; position:absolute; left:0; bottom:-4px; height:1px; width:0; background:var(--gold); transition:width .25s ease; }
-.realm-film__nav button:hover::after { width:100%; }
-.realm-film__nav-cta { grid-column:3; grid-row:1/3; align-self:start; }
-.realm-film__nav-cta span { margin-left:15px; }
-.realm-film__menu-toggle { display:none; }
-.realm-film__edition { position:absolute; z-index:3; top:135px; left:3.5%; display:flex; gap:24px; color:#aaa99f; font:9px var(--mono); letter-spacing:.12em; }
-.realm-film__edition span:last-child { color:#6f746e; }
-.realm-film__chapter { position:absolute; left:3.5%; top:28%; width:64%; z-index:4; opacity:0; visibility:hidden; transform:translateY(30px); transition:opacity .4s ease,transform .6s cubic-bezier(.22,1,.36,1),visibility .4s; pointer-events:none; }
-.realm-film__chapter.is-active { opacity:1; visibility:visible; transform:none; pointer-events:auto; }
-.realm-film__eyebrow { color:var(--gold); font:10px var(--mono); letter-spacing:.2em; margin:0 0 22px; }
-.realm-film h1,.realm-film h2 { margin:0; color:var(--paper); font-family:var(--sans); font-weight:500; font-size:clamp(56px,6.5vw,108px); letter-spacing:-.065em; line-height:.99; text-transform:uppercase; }
-.realm-film h1 em,.realm-film h2 em { font-style:normal; color:var(--gold); }
-.realm-film h2 { font-size:clamp(42px,5.1vw,82px); }
-.realm-film__intro-bottom { display:flex; gap:40px; align-items:flex-end; margin-top:28px; max-width:640px; }
-.realm-film__intro-bottom p,.realm-film__chapter-copy { color:#bcbdb5; font-size:clamp(12px,1vw,15px); line-height:1.7; margin:0; }
-.realm-film__text-link { display:inline-flex; align-items:center; justify-content:space-between; gap:25px; min-height:44px; padding:12px 0!important; border-bottom:1px solid #79786e!important; font-size:12px; white-space:nowrap; }
-.realm-film__text-link span { color:var(--gold); transition:transform .25s ease; }
-.realm-film__text-link:hover span { transform:translate(3px,-3px); }
-.realm-film__chapter--mind { top:25%; width:53%; }
-.realm-film__chapter-copy { max-width:340px; margin:26px 0 16px; }
-.realm-film__cognition { display:flex; align-items:center; gap:14px; margin:24px 0; font:10px var(--mono); text-transform:uppercase; letter-spacing:.1em; }
-.realm-film__cognition i { color:var(--gold); font-style:normal; }
-.realm-film__chapter--world { top:26%; width:70%; }
-.realm-film__scene-note { position:absolute; z-index:3; right:7%; bottom:19%; width:180px; text-align:right; pointer-events:none; }
-.realm-film__scene-number { display:block; font-size:48px; line-height:1; font-weight:400; letter-spacing:-.06em; color:#d5d1c4; }
-.realm-film__scene-number i { font-style:normal; font-size:12px; letter-spacing:0; color:#6d756f; margin-left:10px; }
-.realm-film__scene-note p { font-size:13px; line-height:1.5; }
-.realm-film__scene-caption { font:8px var(--mono); letter-spacing:.13em; color:var(--gold); }
-.realm-film__rail { position:absolute; right:3%; top:37%; z-index:7; display:flex; flex-direction:column; gap:17px; }
-.realm-film__rail::before { content:''; position:absolute; right:0; top:10px; bottom:10px; width:1px; background:#353b36; }
-.realm-film__rail button { position:relative; display:flex; justify-content:flex-end; align-items:center; gap:14px; width:48px; min-height:32px; }
-.realm-film__rail button::after { content:''; width:3px; height:3px; border-radius:50%; background:#667169; margin-right:-1px; transition:box-shadow .25s,background .25s; }
-.realm-film__rail button[aria-current]::after { background:#e4d4b3; box-shadow:0 0 15px 3px #b8a07477; }
-.realm-film__rail button span { font:9px var(--mono); color:#737d75; }
-.realm-film__rail button[aria-current] span { color:var(--gold); }
-.realm-film__footer { position:absolute; z-index:8; bottom:30px; left:3.5%; right:3.5%; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #b9bea029; padding-top:20px; }
-.realm-film__next { display:flex; align-items:center; gap:15px; font-size:11px; }
-.realm-film__scroll-icon { display:grid; place-items:center; width:35px; height:35px; border:1px solid #b1b4a44f; border-radius:50%; color:var(--gold); animation:realm-breathe 3s ease-in-out infinite; }
-.realm-film__interactions { display:flex; gap:28px; }
-.realm-film__interactions button { min-height:40px; font-size:10px; color:#b7bcb1; }
-.realm-film__interactions button span { display:inline-block; margin-left:10px; color:var(--gold); }
-.realm-film__progress { position:absolute; z-index:10; bottom:0; left:0; right:0; height:2px; background:#33382b44; }
-.realm-film__progress span { display:block; height:100%; width:100%; transform-origin:left; transform:scaleX(var(--journey)); background:var(--gold); }
-.realm-film__mobile-menu { position:absolute; z-index:11; top:92px; left:20px; right:20px; background:#131713f5; padding:20px; border:1px solid #504c3e; }
-.realm-film__mobile-menu button { display:flex; width:100%; justify-content:space-between; padding:16px 0; text-align:left; border-bottom:1px solid #ffffff14; }
-.realm-film__mobile-menu span { color:var(--gold); font:10px var(--mono); }
-@keyframes realm-breathe { 50% { transform:translateY(4px); border-color:var(--gold); } }
-/* The following project sections also use this shared status animation. */
-@keyframes pulseDot { 0%,100% { opacity:.4; } 50% { opacity:1; } }
-@media(max-width:1100px) {
-  .realm-film__nav { column-gap:20px; }
-  .realm-film h1 { font-size:clamp(52px,7vw,76px); }
-  .realm-film__intro-bottom { display:block; }
-  .realm-film__intro-bottom .realm-film__text-link { margin-top:12px; }
-  .realm-film__scene-note { right:8%; bottom:17%; width:145px; }
+.realm-film {
+  --paper: #f4eddb;
+  --champagne: #cbb17e;
+  --journey: 0;
+  position: relative;
+  height: 330vh;
+  height: 330svh;
+  color: var(--paper);
+  background: #090a09;
+  font-family: Georgia, 'Times New Roman', serif;
 }
-@media(max-width:700px) {
-  .realm-film { height:240vh; }
-  .realm-film__header { left:20px; right:20px; top:20px; align-items:center; }
-  .realm-film__brand img { width:38px; height:38px; }
-  .realm-film__brand>span { font-size:9px; }
-  .realm-film__nav { display:none; }
-  .realm-film__menu-toggle { display:block; min-height:44px; font-size:12px; }
-  .realm-film__edition { top:97px; left:22px; font-size:8px; }
-  .realm-film__edition span:last-child { display:none; }
-  .realm-film__chapter,.realm-film__chapter--mind,.realm-film__chapter--world { top:25%; left:22px; width:calc(100% - 63px); }
-  .realm-film h1 { font-size:clamp(45px,10.9vw,74px); }
-  .realm-film h2 { font-size:clamp(37px,8.9vw,58px); }
-  .realm-film__eyebrow { font-size:8px; margin-bottom:16px; }
-  .realm-film__intro-bottom { margin-top:24px; }
-  .realm-film__intro-bottom p,.realm-film__chapter-copy { font-size:12px; max-width:280px; }
-  .realm-film__scene-note { display:none; }
-  .realm-film__rail { right:18px; top:39%; gap:20px; }
-  .realm-film__rail button { width:25px; }
-  .realm-film__rail button span { display:none; }
-  .realm-film__footer { left:22px; right:22px; bottom:18px; align-items:flex-end; padding-top:14px; }
-  .realm-film__interactions { flex-direction:column; gap:0; align-items:flex-end; }
-  .realm-film__interactions button { min-height:32px; font-size:9px; }
-  .realm-film__next { font-size:10px; gap:10px; }
-  .realm-film__shade { background:linear-gradient(90deg,#070a09aa,#070a0911),linear-gradient(0deg,#070a09b3,transparent 35%); }
+.realm-film__viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(ellipse at 78% 53%, #24251e 0%, #11130f 35%, #080908 70%);
 }
-@media(max-height:680px) and (min-width:701px) {
-  .realm-film__header { top:18px; }
-  .realm-film__edition { top:95px; }
-  .realm-film__chapter { top:25%; }
-  .realm-film h1 { font-size:clamp(44px,5vw,70px); }
-  .realm-film h2 { font-size:clamp(38px,4.5vw,60px); }
-  .realm-film__intro-bottom { display:flex; margin-top:18px; }
-  .realm-film__eyebrow { margin-bottom:15px; }
-  .realm-film__chapter-copy { margin-top:15px; }
-  .realm-film__cognition { margin:12px 0; }
-  .realm-film__footer { bottom:15px; padding-top:8px; }
+.realm-film button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 0;
 }
-@media(max-height:650px) and (max-width:700px) {
-  .realm-film__edition { display:none; }
-  .realm-film__chapter,.realm-film__chapter--mind,.realm-film__chapter--world { top:21%; }
-  .realm-film h1 { font-size:40px; }
-  .realm-film h2 { font-size:33px; }
-  .realm-film__intro-bottom { margin-top:14px; }
-  .realm-film__chapter-copy { margin-top:14px; }
-  .realm-film__cognition { margin:10px 0; }
+.realm-film button:focus-visible { outline: 2px solid var(--champagne); outline-offset: 4px; }
+.realm-film__header {
+  position: absolute;
+  z-index: 5;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 19px 4.25%;
+  background: linear-gradient(#080908c9, transparent);
 }
-.realm-film--still .realm-film__scroll-icon { animation:none; }
-.realm-film--still .realm-film__chapter { transition:none; }
-@media(max-height:500px) {
-  .realm-film__edition { display:none; }
-  .realm-film__header { top:12px; }
-  .realm-film__chapter,.realm-film__chapter--mind,.realm-film__chapter--world { top:23%; }
-  .realm-film h1 { font-size:30px; }
-  .realm-film h2 { font-size:28px; }
-  .realm-film__eyebrow { margin-bottom:10px; }
-  .realm-film__intro-bottom { display:flex; align-items:center; gap:22px; margin-top:12px; }
-  .realm-film__intro-bottom p,.realm-film__chapter-copy { font-size:10px; }
-  .realm-film__intro-bottom .realm-film__text-link { margin:0; }
-  .realm-film__chapter-copy { margin:12px 0 6px; }
-  .realm-film__cognition { margin:6px 0; }
-  .realm-film__footer { bottom:10px; padding-top:6px; }
-  .realm-film__interactions { flex-direction:row; gap:18px; }
-  .realm-film__scene-note { display:none; }
+.realm-film__brand { display: flex; align-items: center; gap: 17px; white-space: nowrap; }
+.realm-film__brand img { display: block; object-fit: contain; filter: grayscale(1) sepia(0.65) brightness(2); }
+.realm-film__brand span { font-size: clamp(12px, 1.05vw, 19px); letter-spacing: 0.25em; }
+.realm-film__nav { display: flex; gap: clamp(14px, 2.65vw, 44px); }
+.realm-film__nav button, .realm-film__menu-toggle { min-height: 42px; font-size: 13px; letter-spacing: 0.035em; }
+.realm-film__nav button:hover, .realm-film__tools button:hover { color: var(--champagne); }
+.realm-film__observer { border: 1px solid var(--champagne) !important; color: var(--paper); text-transform: uppercase; font-size: 11px !important; letter-spacing: 0.25em; }
+.realm-film__observer:hover { background: #d7bc7714; border-color: var(--paper) !important; }
+.realm-film__header-cta { padding: 13px 26px !important; border-radius: 3px; }
+.realm-film__menu-toggle { display: none; }
+.realm-film__mobile-menu { position: absolute; top: 70px; left: 4%; right: 4%; padding: 12px 20px; z-index: 8; border: 1px solid #a7956e75; background: #11130ff7; }
+.realm-film__mobile-menu button { display: block; width: 100%; min-height: 42px; text-align: left; }
+.realm-film__art { position: absolute; inset: 0 0 0 36%; }
+.realm-film__canvas { width: 100%; height: 100%; display: block; touch-action: pan-y; }
+.realm-film__art::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, #0b0c0b80, transparent 9%), linear-gradient(0deg,#080908 0%, transparent 12%); }
+.realm-film__copy { position: absolute; left: 4.5%; top: 48%; transform: translateY(-50%); width: 32%; max-width: 680px; z-index: 2; }
+.realm-film__edition { color: var(--champagne); font: 10px/1.6 var(--mono); letter-spacing: 0.16em; text-transform: uppercase; margin: 0 0 20px; }
+.realm-film__edition span { margin-left: 12px; }
+.realm-film h1 { font: 400 clamp(40px, 4.2vw, 86px)/1.02 Georgia, 'Times New Roman', serif; color: var(--paper); letter-spacing: -0.052em; text-transform: uppercase; margin: 0; }
+.realm-film__description { color: #c7c4b8; font-size: clamp(15px,1.15vw,21px); line-height: 1.52; max-width: 32ch; margin: 24px 0 30px; animation: realm-copy-in 0.22s ease-out; }
+.realm-film__main-cta { display: inline-flex; align-items: center; justify-content: space-between; gap: 28px; min-height: 48px; padding: 0 27px !important; border-radius: 2px; }
+.realm-film__main-cta span { font-size: 17px; }
+.realm-film__footer { position: absolute; inset: auto 4.25% 16px; display: flex; align-items: end; justify-content: space-between; gap: 30px; z-index: 3; }
+.realm-film__chapters { display: flex; width: min(710px, 65%); }
+.realm-film__chapters button { position: relative; flex: 1; min-width: 0; border-top: 1px solid #a595735a; color: #c2bfb0; padding: 12px 4px 5px 0; font-size: 12px; letter-spacing: 0.055em; text-align: left; }
+.realm-film__chapters button::before { content: ''; position: absolute; left: 1px; top: -3px; width: 5px; height: 5px; border-radius: 50%; background: #756c58; }
+.realm-film__chapters button[aria-current] { color: var(--paper); border-color: var(--champagne); }
+.realm-film__chapters button[aria-current]::before { background: #f8d297; box-shadow: 0 0 9px #d8b277; }
+.realm-film__chapters small { display: block; color: var(--champagne); font-size: 10px; margin-bottom: 3px; }
+.realm-film__tools { display: flex; gap: 18px; align-items: center; }
+.realm-film__tools button { font: 10px var(--sans); color: #c4c4b8; min-height: 40px; }
+.realm-film__stages { position: absolute; z-index: 1; left: 6%; right: 4%; bottom: 15%; display: flex; list-style: none; margin: 0; padding: 0; border-top: 1px solid #beab764d; }
+.realm-film__stages li { flex: 1; padding-top: 8px; text-align: center; font-size: clamp(9px, 0.9vw, 14px); }
+.realm-film__stages small { display: block; color: var(--champagne); font-size: 10px; }
+.realm-film__progress { position: absolute; z-index: 4; inset: auto 0 0; height: 2px; }
+.realm-film__progress i { display: block; height: 100%; transform-origin: left; transform: scaleX(var(--journey)); background: var(--champagne); }
+@keyframes realm-copy-in { from { opacity: .45; transform: translateY(4px); } }
+@keyframes pulseDot { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+
+@media(max-width:950px) {
+  .realm-film__nav, .realm-film__header-cta { display: none; }
+  .realm-film__menu-toggle { display: block; }
+  .realm-film__tools { gap: 12px; }
 }
-@media(prefers-reduced-motion:reduce) { .realm-film *, .realm-film *::before,.realm-film *::after { animation:none!important; transition:none!important; } }
+@media(max-width:700px) and (orientation: portrait) {
+  .realm-film__viewport { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+  .realm-film__header { position: relative; grid-row: 1; padding: 10px 6%; }
+  .realm-film__brand img { width: 34px; height: 34px; }
+  .realm-film__brand { gap: 10px; }
+  .realm-film__copy { position: relative; left: auto; top: auto; transform: none; grid-row: 2; width: auto; max-width: none; margin: 8px 6% 0; }
+  .realm-film__edition { font-size: 9px; margin-bottom: 10px; }
+  .realm-film h1 { font-size: clamp(31px, min(9vw, 6.4svh), 58px); }
+  .realm-film__description { font-size: 14px; line-height: 1.4; margin: 10px 0 12px; max-width: 44ch; }
+  .realm-film__main-cta { min-height: 42px; padding: 0 19px !important; }
+  .realm-film__art { position: relative; inset: auto; min-height: 0; grid-row: 3; }
+  .realm-film__art::after { background: linear-gradient(0deg,#0a0b09,transparent 9%); }
+  .realm-film__stages { bottom: 1%; }
+  .realm-film__footer { position: relative; inset: auto; grid-row: 4; flex-direction: column; align-items: stretch; gap: 0; margin: 0 6% 4px; }
+  .realm-film__chapters { width: 100%; }
+  .realm-film__chapters button { font-size: 10px; min-height: 42px; padding-top: 6px; }
+  .realm-film__tools { justify-content: flex-end; gap: 18px; }
+  .realm-film__tools button { min-height: 32px; }
+}
+@media(max-height:530px) and (orientation:landscape) {
+  .realm-film__header { padding-top: 5px; padding-bottom: 5px; }
+  .realm-film__brand img { width: 28px; height: 28px; }
+  .realm-film__copy { top: 49%; width: 33%; }
+  .realm-film h1 { font-size: clamp(26px, 7.4vh, 40px); }
+  .realm-film__edition { margin-bottom: 5px; font-size: 8px; }
+  .realm-film__description { font-size: 12px; margin: 6px 0; }
+  .realm-film__main-cta { min-height: 32px; font-size: 9px !important; }
+  .realm-film__footer { bottom: 4px; }
+}
+.realm-film--still .realm-film__description { animation: none; }
+@media(prefers-reduced-motion:reduce) { .realm-film *, .realm-film *::before, .realm-film *::after { animation: none !important; transition: none !important; } }

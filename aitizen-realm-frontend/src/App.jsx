@@ -7,6 +7,7 @@ import AutonomousAction from './components/autonomousAction/AutonomousAction'
 import Future from './components/future/Future'
 import ProjectInfo from './components/projectInfo/ProjectInfo'
 import './App.css'
+import './sections-theme.css'
 
 function App() {
   return (

@@ -1,125 +1,114 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { CHAPTERS, getChapterIndex } from './chapters'
 import './hero.css'
 
 const RealmScene = lazy(() => import('./RealmScene'))
-const CHAPTERS = ['The spark', 'The mind', 'The civilization']
-const STOPS = [0, 0.46, 0.9]
-const LINKS = [['idea', 'The idea'], ['agents', 'AI citizens'], ['how-it-works', 'How it works'], ['project-info', 'Project info']]
+const links = [['idea', 'The idea'], ['agents', 'Citizens'], ['how-it-works', 'Systems'], ['project-info', 'Research']]
+const stages = ['Senses', 'Memory', 'Reasoning', 'Decision', 'Action', 'Evolution']
 
 export default function Hero() {
   const containerRef = useRef(null)
   const progressRef = useRef(0)
-  const motionRef = useRef(true)
-  const burstRef = useRef(false)
+  const redrawRef = useRef(null)
+  const menuButton = useRef(null)
   const [chapter, setChapter] = useState(0)
   const [motion, setMotion] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [dispersed, setDispersed] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => { motionRef.current = motion }, [motion])
-  useEffect(() => { burstRef.current = dispersed }, [dispersed])
+  const current = CHAPTERS[chapter]
 
   useEffect(() => {
     const container = containerRef.current
     let frame = 0
-    const update = () => {
+    const measure = () => {
       frame = 0
-      const distance = container.offsetHeight - window.innerHeight
+      const distance = container.offsetHeight - container.firstElementChild.clientHeight
       const progress = Math.max(0, Math.min(1, -container.getBoundingClientRect().top / Math.max(1, distance)))
       progressRef.current = progress
       container.style.setProperty('--journey', progress)
-      setChapter(progress < 0.28 ? 0 : progress < 0.65 ? 1 : 2)
+      setChapter(getChapterIndex(progress))
+      redrawRef.current?.()
     }
-    const requestUpdate = () => { if (!frame) frame = requestAnimationFrame(update) }
-    update()
-    window.addEventListener('scroll', requestUpdate, { passive: true })
-    window.addEventListener('resize', requestUpdate)
+    const request = () => { if (!frame) frame = requestAnimationFrame(measure) }
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const updatePreference = () => setMotion(!preference.matches)
+    measure()
+    preference.addEventListener('change', updatePreference)
+    window.addEventListener('scroll', request, { passive: true })
+    window.addEventListener('resize', request)
     return () => {
       cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', requestUpdate)
-      window.removeEventListener('resize', requestUpdate)
+      preference.removeEventListener('change', updatePreference)
+      window.removeEventListener('scroll', request)
+      window.removeEventListener('resize', request)
     }
   }, [])
 
   useEffect(() => {
     if (!menuOpen) return
-    const close = (event) => { if (event.key === 'Escape') setMenuOpen(false) }
+    const close = event => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false)
+        menuButton.current?.focus()
+      }
+    }
     window.addEventListener('keydown', close)
     return () => window.removeEventListener('keydown', close)
   }, [menuOpen])
 
-  const scrollTo = (id) => {
+  const visit = id => {
     setMenuOpen(false)
     document.getElementById(id)?.scrollIntoView({ behavior: motion ? 'smooth' : 'instant' })
   }
-  const goToChapter = (index) => {
+  const goToChapter = index => {
+    setMenuOpen(false)
     const container = containerRef.current
-    const top = window.scrollY + container.getBoundingClientRect().top
-    window.scrollTo({ top: top + (container.offsetHeight - window.innerHeight) * STOPS[index], behavior: motion ? 'smooth' : 'instant' })
+    const distance = container.offsetHeight - container.firstElementChild.clientHeight
+    const top = window.scrollY + container.getBoundingClientRect().top + CHAPTERS[index].stop * distance
+    window.scrollTo({ top, behavior: motion ? 'smooth' : 'instant' })
   }
-
   return (
-    <section id="realm" className={`realm-film ${motion ? '' : 'realm-film--still'}`} ref={containerRef} aria-label="Explore AITIZEN REALM">
+    <section id="realm" className={'realm-film' + (motion ? '' : ' realm-film--still')} ref={containerRef} aria-label="AITIZEN REALM">
       <div className="realm-film__viewport">
-        <div className="realm-film__fallback" aria-hidden="true" />
-        <Suspense fallback={null}>
-          <RealmScene progressRef={progressRef} motionRef={motionRef} burstRef={burstRef} />
-        </Suspense>
-        <div className="realm-film__shade" aria-hidden="true" />
         <header className="realm-film__header">
           <button className="realm-film__brand" onClick={() => goToChapter(0)} aria-label="AITIZEN REALM home">
-            <img src="/aitizen-realm-logo.png" alt="" width="48" height="48" />
-            <span>AITIZEN<br /><b>REALM</b></span>
+            <img src="/aitizen-realm-logo.png" alt="" width="42" height="42" />
+            <span>AITIZEN REALM</span>
           </button>
           <nav className="realm-film__nav" aria-label="Primary navigation">
-            {LINKS.map(([id, label]) => <button key={id} onClick={() => scrollTo(id)}>{label}</button>)}
-            <button className="realm-film__nav-cta" onClick={() => scrollTo('agents')}>Observer <span aria-hidden="true">↗</span></button>
+            <button onClick={() => goToChapter(3)}>World</button>
+            {links.map(([id, label]) => <button key={id} onClick={() => visit(id)}>{label}</button>)}
           </nav>
-          <button className="realm-film__menu-toggle" aria-expanded={menuOpen} aria-controls="realm-mobile-menu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close −' : 'Menu +'}</button>
+          <button className="realm-film__observer realm-film__header-cta" onClick={() => visit('agents')}>Observer</button>
+          <button ref={menuButton} className="realm-film__menu-toggle" aria-expanded={menuOpen} aria-controls="realm-mobile-menu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close' : 'Menu'}</button>
         </header>
-        {menuOpen && <nav id="realm-mobile-menu" className="realm-film__mobile-menu" aria-label="Mobile navigation">
-          {LINKS.map(([id, label], index) => <button key={id} onClick={() => scrollTo(id)}>{label}<span>0{index + 1}</span></button>)}
-        </nav>}
-        <div className="realm-film__edition" aria-hidden="true"><span>AN EXPERIMENT IN AUTONOMY</span><span>AITIZEN / 2026</span></div>
-
-        <div className={`realm-film__chapter realm-film__chapter--spark ${chapter === 0 ? 'is-active' : ''}`} inert={chapter !== 0} aria-hidden={chapter !== 0}>
-          <p className="realm-film__eyebrow">01 — THE SPARK</p>
-          <h1>A WORLD.<br />WITH A MIND<br />OF ITS <em>OWN.</em></h1>
-          <div className="realm-film__intro-bottom">
-            <p>Autonomous citizens. Shared resources.<br />A civilization shaped by its own decisions.</p>
-            <button className="realm-film__text-link" onClick={() => scrollTo('agents')}>Enter observer view <span aria-hidden="true">↗</span></button>
-          </div>
-        </div>
-        <div className={`realm-film__chapter realm-film__chapter--mind ${chapter === 1 ? 'is-active' : ''}`} inert={chapter !== 1} aria-hidden={chapter !== 1}>
-          <p className="realm-film__eyebrow">02 — THE MIND</p>
-          <h2>FROM A SIGNAL.<br />TO A <em>DECISION.</em></h2>
-          <p className="realm-film__chapter-copy">Every citizen perceives, remembers, and weighs what comes next. Small decisions become the forces that shape a world.</p>
-          <div className="realm-film__cognition"><span>Perceive</span><i aria-hidden="true">→</i><span>Remember</span><i aria-hidden="true">→</i><span>Decide</span></div>
-          <button className="realm-film__text-link" onClick={() => scrollTo('how-it-works')}>Explore the architecture <span aria-hidden="true">↗</span></button>
-        </div>
-        <div className={`realm-film__chapter realm-film__chapter--world ${chapter === 2 ? 'is-active' : ''}`} inert={chapter !== 2} aria-hidden={chapter !== 2}>
-          <p className="realm-film__eyebrow">03 — THE CIVILIZATION</p>
-          <h2>INDIVIDUAL MINDS.<br /><em>COLLECTIVE LIFE.</em></h2>
-          <p className="realm-film__chapter-copy">Work. Learn. Exchange. Adapt.<br />Watch individual choices connect citizens, resources, and emerging settlements.</p>
-          <button className="realm-film__text-link" onClick={() => scrollTo('idea')}>Discover the living realm <span aria-hidden="true">↗</span></button>
-        </div>
-
-        <aside className="realm-film__scene-note" aria-label="Scene description">
-          <span className="realm-film__scene-number">0{chapter + 1}<i>/03</i></span>
-          <p>{['A spark becomes a system.', 'Intelligence finds its rhythm.', 'A world takes shape.'][chapter]}</p>
-          <span className="realm-film__scene-caption">{['ORDER / POSSIBILITY', 'MEMORY / INTENTION', 'CONNECTION / EMERGENCE'][chapter]}</span>
-        </aside>
-        <nav className="realm-film__rail" aria-label="Cover chapters">
-          {CHAPTERS.map((label, index) => <button key={label} onClick={() => goToChapter(index)} aria-label={label} aria-current={chapter === index ? 'step' : undefined}><span>0{index + 1}</span></button>)}
+        <nav id="realm-mobile-menu" className="realm-film__mobile-menu" hidden={!menuOpen} aria-label="Mobile navigation">
+          <button onClick={() => goToChapter(3)}>World</button>
+          {links.map(([id, label]) => <button key={id} onClick={() => visit(id)}>{label}</button>)}
         </nav>
+        <div className="realm-film__art" aria-hidden="true">
+          <Suspense fallback={null}>
+            <RealmScene progressRef={progressRef} redrawRef={redrawRef} motion={motion} dispersed={dispersed} />
+          </Suspense>
+          {chapter === 1 && <ol className="realm-film__stages">{stages.map((stage, i) => <li key={stage}><small>0{i + 1}</small>{stage}</li>)}</ol>}
+        </div>
+        <div className="realm-film__copy">
+          <p className="realm-film__edition">0{chapter + 1} / 04 <span>{current.name}</span></p>
+          <h1>A world.<br />With a mind<br />of its own.</h1>
+          <p className="realm-film__description" key={chapter}>{current.copy}</p>
+          <button className="realm-film__observer realm-film__main-cta" onClick={() => visit('agents')}>Observer <span aria-hidden="true">→</span></button>
+        </div>
         <footer className="realm-film__footer">
-          <button className="realm-film__next" onClick={() => chapter < 2 ? goToChapter(chapter + 1) : scrollTo('idea')}><span className="realm-film__scroll-icon" aria-hidden="true">↓</span><span>{chapter < 2 ? 'Scroll to unfold' : 'Discover the project'}</span></button>
-          <div className="realm-film__interactions">
-            <button onClick={() => setDispersed(!dispersed)} aria-pressed={dispersed}>{dispersed ? 'Reassemble' : 'Disperse the world'} <span aria-hidden="true">✳</span></button>
-            <button onClick={() => setMotion(!motion)} aria-pressed={motion}>Motion {motion ? 'on' : 'off'} <span aria-hidden="true">{motion ? 'Ⅱ' : '▷'}</span></button>
+          <nav className="realm-film__chapters" aria-label="Cover chapters">
+            {CHAPTERS.map(({ name, short }, i) => <button key={name} onClick={() => goToChapter(i)} aria-label={name} aria-current={chapter === i ? 'step' : undefined}><small>0{i + 1}</small>{short}</button>)}
+          </nav>
+          <div className="realm-film__tools">
+            <button onClick={() => setDispersed(!dispersed)} aria-pressed={dispersed}>{dispersed ? 'Reassemble' : 'Disperse'}</button>
+            <button onClick={() => setMotion(!motion)} aria-pressed={motion}>Motion {motion ? 'on' : 'off'}</button>
+            <button onClick={() => chapter < 3 ? goToChapter(chapter + 1) : visit('idea')}>{chapter < 3 ? 'Next' : 'The idea'} ↓</button>
           </div>
         </footer>
-        <div className="realm-film__progress" aria-hidden="true"><span /></div>
+        <div className="realm-film__progress" aria-hidden="true"><i /></div>
       </div>
     </section>
   )

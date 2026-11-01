@@ -1,0 +1,241 @@
+/* Editorial continuation of the four-chapter cover. Content and behavior live in the section components. */
+.app-shell {
+  --section-ivory: #f1ead9;
+  --section-gold: #c9ac77;
+  --section-muted: #bbb7a9;
+  --section-line: rgba(201, 172, 119, .26);
+  --section-panel: #11130ff0;
+  --ai: var(--section-gold);
+  --cyber-violet: #947b57;
+  --hu: var(--section-gold);
+}
+
+.app-shell > :is(.idea-section, .hiw-section, .agents-section, .hw-section, .aa-section, .future-section, .pi-section) {
+  position: relative;
+  padding: clamp(88px, 10vw, 156px) max(24px, 4.5vw);
+  color: var(--section-ivory);
+  background: radial-gradient(ellipse at 82% 22%, #35312265 0%, transparent 44%),
+    linear-gradient(155deg, #0b0d0b, #161711 55%, #0b0d0b);
+  border-top: 1px solid var(--section-line);
+  border-bottom: 0;
+  overflow: hidden;
+}
+.app-shell > :is(.hiw-section, .hw-section, .future-section) {
+  background: radial-gradient(ellipse at 14% 70%, #4b3d2640, transparent 46%),
+    linear-gradient(205deg, #11130f, #080a09 58%, #12130e);
+}
+.app-shell > :is(.idea-section, .hiw-section, .agents-section, .hw-section, .aa-section, .future-section, .pi-section)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 4.5%;
+  transform: none;
+  width: 91%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--section-gold), transparent);
+  opacity: .55;
+}
+.app-shell .section-container { max-width: 1400px; }
+.app-shell .section-header {
+  max-width: 1100px;
+  margin: 0 0 clamp(40px, 6vw, 80px);
+  text-align: left;
+}
+.app-shell .section-badge,
+.app-shell .future-badge {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 13px;
+  margin: 0 0 23px;
+  color: var(--section-gold);
+  font-size: 11px;
+  letter-spacing: .22em;
+}
+.app-shell .badge-pulse,
+.app-shell .status-blink,
+.app-shell .telemetry-led,
+.app-shell .hw-telemetry-dot,
+.app-shell .pi-dot {
+  background: var(--section-gold);
+  box-shadow: 0 0 12px #c9ac7777;
+}
+.app-shell .section-title,
+.app-shell .statement-line {
+  font: 400 clamp(43px, 6.4vw, 96px)/.99 Georgia, 'Times New Roman', serif;
+  letter-spacing: -.045em;
+  color: var(--section-ivory);
+  text-transform: uppercase;
+}
+.app-shell .text-gradient,
+.app-shell .text-gradient-warm,
+.app-shell .statement-line--gradient {
+  background: none;
+  -webkit-text-fill-color: var(--section-gold);
+  color: var(--section-gold);
+  text-shadow: none;
+}
+.app-shell .section-description {
+  max-width: 70ch;
+  margin-top: 23px;
+  color: var(--section-muted);
+  font: 400 clamp(16px, 1.4vw, 21px)/1.6 Georgia, 'Times New Roman', serif;
+}
+.app-shell :is(.idea-card, .comparison-col, .philosophy-card, .showcase-card, .agent-detail-card, .hw-display, .aa-stress-box, .response-card, .future-brand-banner, .pi-card, .pi-tech-box) {
+  background: linear-gradient(150deg, #1c1d17e8, #0e100eee);
+  border: 1px solid var(--section-line);
+  border-radius: 3px;
+  box-shadow: 0 22px 48px #0005;
+  backdrop-filter: none;
+}
+.app-shell :is(.idea-card, .comparison-col, .philosophy-card, .showcase-card, .agent-detail-card, .hw-display, .aa-stress-box, .response-card, .pi-card, .pi-tech-box)::before {
+  background: linear-gradient(90deg, var(--section-gold), transparent 68%);
+}
+.app-shell :is(.card-title, .col-title, .showcase-title, .detail-headline, .hw-display-headline, .res-title, .future-realm-title) {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: -.025em;
+  color: var(--section-ivory);
+}
+.app-shell :is(.card-text, .col-sub, .showcase-desc, .detail-summary, .hw-display-desc, .behavior-desc, .res-outcome, .future-tagline, .tech-role, .member-role) {
+  color: var(--section-muted);
+}
+.app-shell :is(.card-tag, .stat-val, .phil-num, .showcase-step-num, .detail-label, .behavior-label, .status-indicator, .activity-tag, .hw-display-tag, .hw-highlight-label, .res-tag--cyan, .log-label--cyan, .pi-tag, .pi-spec-val.highlight, .tech-box-title, .tech-tag, .footer-center, .chip-value) {
+  color: var(--section-gold);
+}
+.app-shell :is(.card-tag, .showcase-tag, .activity-focus-tag, .hw-display-tag, .res-tag, .tech-tag, .col-badge) {
+  border-radius: 2px;
+  background: #c9ac7712;
+  border-color: var(--section-line);
+}
+.app-shell :is(.showcase-detail, .behavior-box, .hw-highlight-box, .res-log-box, .terminal-window, .tech-chip-card, .pi-member-slot) {
+  background: #080a09a8;
+  border: 1px solid #c9ac772b;
+  border-radius: 2px;
+}
+.app-shell :is(.idea-tab, .activity-btn, .hw-nav-btn, .stress-btn, .stage-nav-btn, .future-btn-primary, .future-btn-secondary, .footer-top-btn) {
+  background: #11130ecb;
+  border: 1px solid var(--section-line);
+  border-radius: 2px;
+  box-shadow: none;
+  color: var(--section-ivory);
+}
+.app-shell :is(.idea-tab, .activity-btn, .hw-nav-btn, .stress-btn, .stage-nav-btn, .future-btn-primary, .future-btn-secondary, .footer-top-btn):hover {
+  background: #c9ac771c;
+  border-color: var(--section-gold);
+  box-shadow: none;
+}
+.app-shell :is(.idea-tab.active, .activity-btn.selected, .hw-nav-btn.active, .stress-btn.active) {
+  background: linear-gradient(90deg, #c9ac772d, #151611);
+  border-color: var(--section-gold);
+  box-shadow: inset 3px 0 var(--section-gold);
+}
+.app-shell :is(.idea-tab, .activity-title, .hw-nav-title, .stress-btn-title, .stage-nav-btn, .future-btn-primary, .future-btn-secondary, .member-name, .tech-name, .pi-spec-val) {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: .025em;
+}
+.app-shell :is(.idea-tab, .stage-nav-btn, .future-btn-primary, .future-btn-secondary, .footer-top-btn) { min-height: 44px; }
+.app-shell button:focus-visible { outline: 2px solid #e8cc8d; outline-offset: 3px; }
+
+/* 01: three editorial propositions and a restrained tab rail. */
+.idea-section .idea-tabs { justify-content: flex-start; gap: 0; border-bottom: 1px solid var(--section-line); }
+.idea-section .idea-tab { border: 0; border-bottom: 2px solid transparent; background: transparent; padding: 16px 25px; box-shadow: none; }
+.idea-section .idea-tab:first-child { padding-left: 0; }
+.idea-section .idea-tab.active { border-bottom-color: var(--section-gold); background: transparent; box-shadow: none; }
+.idea-section .idea-card { min-height: 360px; padding: 34px; }
+.idea-section .idea-card:hover { border-color: var(--section-gold); box-shadow: 0 22px 48px #0007; }
+.idea-section .card-num { color: #c9ac7788; font: 400 27px Georgia, serif; }
+.idea-section .card-glow { background: radial-gradient(circle, #c9ac7730, transparent 72%); }
+.idea-section .quote-text { font-family: Georgia, serif; color: var(--section-ivory); }
+.idea-section .philosophy-quote { border-left-color: var(--section-gold); }
+.idea-section .quote-mark { color: #c9ac7748; }
+.idea-section .divider-icon { background: #c9ac7722; border-color: var(--section-gold); color: var(--section-gold); box-shadow: none; }
+.idea-section .divider-label { color: var(--section-gold); }
+.idea-section .comparison-col--aitizen { border-color: var(--section-gold); }
+.idea-section .comparison-item.positive .item-icon { background: #c9ac7722; border-color: var(--section-line); color: var(--section-gold); }
+
+/* 02: a clear cognitive timeline with one focused stage. */
+.hiw-section .pipeline-container { margin-top: 20px; }
+.hiw-section .pipeline-track { height: 1px; background: var(--section-line); }
+.hiw-section .pipeline-progress { background: var(--section-gold); box-shadow: 0 0 10px #c9ac7780; }
+.hiw-section .node-circle { background: #11130f; border: 1px solid var(--section-line); }
+.hiw-section .pipeline-node.current .node-circle { background: #342e20; border-color: var(--section-gold); box-shadow: 0 0 0 6px #c9ac7719; }
+.hiw-section .pipeline-node.past .node-circle { background: #201d15; border-color: var(--section-gold); }
+.hiw-section .pipeline-node.current .node-label { color: var(--section-gold); text-shadow: none; }
+.hiw-section .node-label { font: 12px var(--mono); letter-spacing: .12em; }
+.hiw-section .showcase-card { max-width: 920px; margin: auto; }
+.hiw-section .showcase-tag { color: var(--section-muted); }
+.hiw-section .stage-nav-btn--next { border-color: var(--section-gold); }
+.hiw-section .stage-nav-btn:hover:not(:disabled) { background: #c9ac771c; border-color: var(--section-gold); box-shadow: none; }
+
+/* 03: agent selector as a compact index beside its case study. */
+.agents-section .activities-list { gap: 5px; }
+.agents-section .activity-btn { border-width: 0 0 1px; padding: 20px; }
+.agents-section .activity-btn.selected { border-width: 1px; }
+.agents-section .activity-btn:hover { transform: translateX(2px); }
+.agents-section .agent-detail-card { top: 25px; }
+.agents-section .terminal-header { background: #1e1d17; }
+.agents-section .terminal-line { color: #d9bf8d; }
+
+/* 04: a warm field guide to human settings. */
+.hw-section .hw-nav-btn { min-height: 74px; }
+.hw-section .hw-nav-btn:hover { transform: translateX(2px); }
+.hw-section .hw-display { min-height: 540px; display: flex; flex-direction: column; justify-content: center; }
+.hw-section .hw-display-ambient { background: radial-gradient(circle, #c9ac7740, transparent 70%); }
+.hw-section .hw-highlight-box { border-left: 3px solid var(--section-gold); }
+.hw-section .hw-nav-btn.active .hw-nav-title { color: var(--section-ivory); }
+
+/* 05: scenario testing reads like a paired research exhibit. */
+.aa-section .stress-btn { min-width: 190px; }
+.aa-section .incident-banner { background: #c9ac7712; border-color: var(--section-line); border-radius: 2px; }
+.aa-section .incident-text, .aa-section .incident-text strong { color: #e9d7b3; }
+.aa-section .response-card--legacy { border-color: #9b85704d; }
+.aa-section .response-card--aitizen { border-color: var(--section-gold); }
+.aa-section .res-title { color: var(--section-ivory); }
+.aa-section .res-log-box, .aa-section .res-log-box--cyan { color: #d0b581; border-color: var(--section-line); }
+.aa-section .res-state--pass { color: #d6bd85; text-shadow: none; }
+.aa-section .log-label--cyan { color: var(--section-gold); }
+
+/* 06: a typographic pause before the project ledger. */
+.future-section { text-align: left; }
+.future-section .future-content { max-width: 1400px; }
+.future-section .future-ambient-glow { background: radial-gradient(circle, #c9ac771d, transparent 70%); filter: blur(30px); }
+.future-section .future-statement { max-width: 1100px; margin-bottom: 58px; }
+.future-section .statement-line { font-size: clamp(38px, 5.7vw, 84px); }
+.future-section .statement-line--dim { color: #8e8d82; }
+.future-section .future-brand-banner { align-items: flex-start; padding: 34px 40px; }
+.future-section .future-actions { justify-content: flex-start; }
+.future-section .brand-logo-ring { border-color: var(--section-gold); box-shadow: none; }
+.future-section .brand-orb { background: radial-gradient(circle, #fff2ca, #c9ac77 65%, #6a563a); box-shadow: 0 0 15px #c9ac77; }
+
+/* 07: specifications and credits as a quiet ledger. */
+.pi-section .pi-spec-row { align-items: baseline; gap: 16px; }
+.pi-section .pi-spec-val { text-align: right; }
+.pi-section .member-avatar { background: #c9ac771c; border-color: var(--section-line); color: var(--section-gold); }
+.pi-section .tech-chip-card:hover { border-color: var(--section-gold); }
+.pi-section .footer-brand { font: 400 18px Georgia, serif; color: var(--section-ivory); }
+
+@media (max-width: 900px) {
+  .app-shell .section-title { font-size: clamp(42px, 8vw, 72px); }
+  .hiw-section .pipeline-container { overflow-x: auto; padding: 15px 4px; }
+  .hiw-section .pipeline-nodes { display: flex; min-width: 660px; }
+  .hiw-section .pipeline-track { display: block; left: 40px; right: auto; width: 580px; top: 51px; }
+  .agents-section .agent-detail-card { position: static; }
+}
+@media (max-width: 600px) {
+  .app-shell > :is(.idea-section, .hiw-section, .agents-section, .hw-section, .aa-section, .future-section, .pi-section) { padding: 78px 18px; }
+  .app-shell .section-header { margin-bottom: 36px; }
+  .app-shell .section-title { font-size: clamp(36px, 10vw, 55px); }
+  .app-shell :is(.idea-card, .comparison-col, .philosophy-card, .showcase-card, .agent-detail-card, .hw-display, .aa-stress-box, .response-card, .pi-card, .pi-tech-box) { padding: 24px; }
+  .idea-section .idea-tab { flex: 1 1 100%; padding: 13px 0; }
+  .idea-section .idea-card { min-height: 0; }
+  .hiw-section .showcase-badge-wrap, .hiw-section .showcase-footer { align-items: flex-start; }
+  .hiw-section .stage-nav-btns { width: 100%; }
+  .hiw-section .stage-nav-btn { flex: 1; padding: 9px; }
+  .hw-section .hw-display { min-height: 0; }
+  .aa-section .stress-btn { min-width: 0; flex: 1 1 100%; }
+  .pi-section .pi-spec-row { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .pi-section .pi-spec-val { text-align: left; }
+  .future-section .future-brand-banner { padding: 25px; }
+}
