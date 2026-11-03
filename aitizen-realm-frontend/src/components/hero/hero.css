@@ -112,4 +112,12 @@
   .realm-film__footer { bottom: 4px; }
 }
 .realm-film--still .realm-film__description { animation: none; }
+.realm-film__art--ribbon { isolation: isolate; }
+.realm-film__horizon { position: absolute; inset: 53% 0 auto; overflow: hidden; color: #bcb9af; font: 600 clamp(16px,2vw,34px)/1.4 var(--sans); pointer-events: none; z-index: -1; }
+.realm-film__horizon span { display: block; width: max-content; transform: translateX(calc(-22% * var(--journey))); }
+.realm-film--still .realm-film__horizon span { transform: none; }
+@media (min-width: 701px) {
+  .realm-film__art--ribbon { left: 0; }
+  .realm-film__art--ribbon::after { background: linear-gradient(90deg,#090a09ed 0%,#090a09d9 28%,transparent 56%); }
+}
 @media(prefers-reduced-motion:reduce) { .realm-film *, .realm-film *::before, .realm-film *::after { animation: none !important; transition: none !important; } }

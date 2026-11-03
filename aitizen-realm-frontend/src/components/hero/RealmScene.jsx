@@ -2,13 +2,9 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { createTwoPerspectives } from './models/TwoPerspectives.js'
-import { createCognitiveOrbit } from './models/CognitiveOrbit.js'
-import { createSignalSociety } from './models/SignalSociety.js'
-import { createLivingWorld } from './models/LivingWorld.js'
+import { createGalaxyRibbon } from './models/GalaxyRibbon.js'
 import { randomSource } from './models/atelier.js'
-import { getChapterIndex } from './chapters.js'
-
-const builders = [createTwoPerspectives, createCognitiveOrbit, createSignalSociety, createLivingWorld]
+const builders = [createTwoPerspectives, createGalaxyRibbon]
 
 function studioEnvironment(renderer) {
   const room = new RoomEnvironment()
@@ -94,7 +90,7 @@ export default function RealmScene({ progressRef, redrawRef, motion, dispersed }
       const { motion: moving, dispersed: spread } = controls.current
       if (moving) elapsed += dt
       const progress = progressRef.current
-      const index = getChapterIndex(progress)
+      const index = progress < 0.25 ? 0 : 1
       if (index !== active) {
         if (chapters.has(active)) chapters.get(active).group.visible = false
         if (!chapters.has(index)) {
@@ -108,7 +104,7 @@ export default function RealmScene({ progressRef, redrawRef, motion, dispersed }
         active = index
       }
       const chapter = chapters.get(active)
-      const local = Math.min(1, Math.max(0, progress * 4 - index))
+      const local = index === 0 ? progress * 4 : (progress - 0.25) / 0.75
       const easing = moving ? 1 - Math.exp(-15 * dt) : 1
       burst = THREE.MathUtils.lerp(burst, held || spread ? 1 : 0, easing)
       easedPointer.lerp(pointer, easing)

@@ -86,7 +86,8 @@ export default function Hero() {
           <button onClick={() => goToChapter(3)}>World</button>
           {links.map(([id, label]) => <button key={id} onClick={() => visit(id)}>{label}</button>)}
         </nav>
-        <div className="realm-film__art" aria-hidden="true">
+        <div className={'realm-film__art' + (chapter ? ' realm-film__art--ribbon' : '')} aria-hidden="true">
+          {chapter > 0 && <div className="realm-film__horizon"><span>MATTER ◇ SYSTEM ◇ ORDER ◇ MATTER ◇ SYSTEM</span></div>}
           <Suspense fallback={null}>
             <RealmScene progressRef={progressRef} redrawRef={redrawRef} motion={motion} dispersed={dispersed} />
           </Suspense>
